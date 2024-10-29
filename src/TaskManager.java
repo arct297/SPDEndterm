@@ -1,6 +1,6 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 
 public class TaskManager {
     private static TaskManager instance;
@@ -55,7 +55,14 @@ public class TaskManager {
             System.out.println("Title: " + task.getTitle());
             System.out.println("Description: " + task.getDescription());
             System.out.println("Status: " + (task.isCompleted() ? "Completed" : "Not Completed"));
+            System.out.println("Due Date: " + task.getDueDate()); // Due Date is assumed in Task class
             System.out.println("---------------");
         }
+    }
+
+    // Method to sort tasks using a given SortStrategy
+    public void sortTasks(SortStrategy strategy) {
+        Collections.sort(tasks, strategy);
+        System.out.println("Tasks sorted successfully.");
     }
 }
