@@ -17,11 +17,12 @@ public class TaskManager {
         return instance;
     }
 
-    public void addTask(String title, String description) {
-        Task newTask = new Task(title, description);
+    public void addTask(String title, String description, String dueDate) {
+        Task newTask = new Task(title, description, dueDate);
         tasks.add(newTask);
         System.out.println("Task added successfully.");
     }
+
 
     public void editTask(String title, String newTitle, String newDescription) {
         for (Task task : tasks) {
