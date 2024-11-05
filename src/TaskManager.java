@@ -1,14 +1,19 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class TaskManager implements Subject {
+public class TaskManager{
     private static TaskManager instance;
     private List<Task> tasks;
-    private List<Observer> observers;
+    private FileFacade fileFacade;
+
+    private TaskSorterContext taskSorterClient;
 
     private TaskManager() {
         tasks = new ArrayList<>();
-        observers = new ArrayList<>();
+        fileFacade = new FileFacade("tasks.txt");
+        loadTasks();
+        this.taskSorterClient = new TaskSorterContext();
     }
 
     public static TaskManager getInstance() {
@@ -18,38 +23,38 @@ public class TaskManager implements Subject {
         return instance;
     }
 
-    @Override
-    public void attach(Observer observer) {
-        observers.add(observer);
-    }
-
-    @Override
-    public void detach(Observer observer) {
-        observers.remove(observer);
-    }
-
-    @Override
-    public void notifyObservers(String message) {
-        for (Observer observer : observers) {
-            observer.update(message);
-        }
-    }
-
     public void addTask(String title, String description, String dueDate) {
+        if (!isUniqueTask(title)) {
+            System.out.println("Task with such title already exists!");
+            return;
+        }
         Task newTask = new Task(title, description, dueDate);
         tasks.add(newTask);
+        saveTasks();
         System.out.println("Task added successfully.");
-        notifyObservers("New task added: " + title);
+    }
+
+    public void saveTasks() {
+        fileFacade.saveTasks(tasks);
+    }
+
+    public void loadTasks() {
+        List<Task> loadedTasks = fileFacade.loadTasks();
+        tasks = new ArrayList<>(loadedTasks);
     }
 
 
-    public void editTask(String title, String newTitle, String newDescription) {
+    public void editTask(String title, String newTitle, String newDescription, String dueDate) {
+        if (isUniqueTask(title)) {
+            System.out.println("Task with such title does not exist!");
+            return;
+        }
         for (Task task : tasks) {
             if (task.getTitle().equalsIgnoreCase(title)) {
                 task.setTitle(newTitle);
                 task.setDescription(newDescription);
+                task.setDueDate(dueDate);
                 System.out.println("Task updated successfully.");
-                notifyObservers("Task updated: " + title + " to " + newTitle);
                 return;
             }
         }
@@ -57,11 +62,14 @@ public class TaskManager implements Subject {
     }
 
     public void markTaskAsDone(String title) {
+        if (isUniqueTask(title)) {
+            System.out.println("Task with such title does not exist!");
+            return;
+        }
         for (Task task : tasks) {
             if (task.getTitle().equalsIgnoreCase(title)) {
                 task.markAsCompleted();
                 System.out.println("Task marked as completed.");
-                notifyObservers("Task completed: " + title);
                 return;
             }
         }
@@ -80,5 +88,46 @@ public class TaskManager implements Subject {
             System.out.println("Status: " + (task.isCompleted() ? "Completed" : "Not Completed"));
             System.out.println("---------------");
         }
+    }
+
+    public void sortTasks(String sortingWay) {
+        if (Objects.equals(sortingWay, "date")) {
+            taskSorterClient.setTaskSorter(new DateTaskSorter());
+        } else if (Objects.equals(sortingWay, "completing")) {
+            taskSorterClient.setTaskSorter(new CompletionStatusTaskSorter());
+        } else if (Objects.equals(sortingWay, "title")) {
+            taskSorterClient.setTaskSorter(new TitleTaskSorter());
+        } else {
+            System.out.println("Wrong task sorting way! Try again!");
+            return;
+        }
+
+        taskSorterClient.sortTasks(this.tasks);
+        System.out.println("Tasks sorted!");
+    }
+
+    public void deleteTask(String title) {
+        boolean found = false;
+        for (Task task : tasks) {
+            if (task.getTitle().equalsIgnoreCase(title)) {
+                tasks.remove(task);
+                found = true;
+                System.out.println("Task deleted successfully.");
+                break;
+            }
+        }
+        if (!found) {
+            System.out.println("Task not found.");
+        }
+    }
+
+    public boolean isUniqueTask(String title) {
+        boolean found = false;
+        for (Task task : tasks) {
+            if (task.getTitle().equalsIgnoreCase(title)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
