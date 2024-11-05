@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 public class FileFacade {
     private final FileManager fileManager;
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public FileFacade(String fileName) {
         this.fileManager = new FileManager(fileName);
@@ -16,7 +15,7 @@ public class FileFacade {
                 .map(task -> String.join("|",
                         task.getTitle(),
                         task.getDescription(),
-                        task.getDueDate().format(String.valueOf(DATE_FORMAT)),
+                        task.getDueDate(),
                         String.valueOf(task.isCompleted())))
                 .collect(Collectors.joining("\n"));
         fileManager.writeData(text);

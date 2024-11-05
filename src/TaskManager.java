@@ -42,6 +42,7 @@ public class TaskManager implements Subject {
         notifyObservers("New task added: " + title);
     }
 
+
     public void editTask(String title, String newTitle, String newDescription) {
         for (Task task : tasks) {
             if (task.getTitle().equalsIgnoreCase(title)) {
