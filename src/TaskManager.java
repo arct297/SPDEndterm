@@ -1,13 +1,14 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-public class TaskManager {
+public class TaskManager implements Subject {
     private static TaskManager instance;
     private List<Task> tasks;
+    private List<Observer> observers;
 
     private TaskManager() {
         tasks = new ArrayList<>();
+        observers = new ArrayList<>();
     }
 
     public static TaskManager getInstance() {
@@ -17,10 +18,28 @@ public class TaskManager {
         return instance;
     }
 
-    public void addTask(String title, String description) {
-        Task newTask = new Task(title, description);
+    @Override
+    public void attach(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void detach(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers(String message) {
+        for (Observer observer : observers) {
+            observer.update(message);
+        }
+    }
+
+    public void addTask(String title, String description, String dueDate) {
+        Task newTask = new Task(title, description, dueDate);
         tasks.add(newTask);
         System.out.println("Task added successfully.");
+        notifyObservers("New task added: " + title);
     }
 
     public void editTask(String title, String newTitle, String newDescription) {
@@ -29,6 +48,7 @@ public class TaskManager {
                 task.setTitle(newTitle);
                 task.setDescription(newDescription);
                 System.out.println("Task updated successfully.");
+                notifyObservers("Task updated: " + title + " to " + newTitle);
                 return;
             }
         }
@@ -40,6 +60,7 @@ public class TaskManager {
             if (task.getTitle().equalsIgnoreCase(title)) {
                 task.markAsCompleted();
                 System.out.println("Task marked as completed.");
+                notifyObservers("Task completed: " + title);
                 return;
             }
         }
@@ -54,6 +75,7 @@ public class TaskManager {
         for (Task task : tasks) {
             System.out.println("Title: " + task.getTitle());
             System.out.println("Description: " + task.getDescription());
+            System.out.println("Due Date: " + task.getDueDate());
             System.out.println("Status: " + (task.isCompleted() ? "Completed" : "Not Completed"));
             System.out.println("---------------");
         }

@@ -1,15 +1,17 @@
 import java.time.LocalDate;
-//eqwewq
+import java.time.format.DateTimeFormatter;
+
 public class Task implements TaskInterface {
     private String title;
     private String description;
     private LocalDate dueDate;
     private boolean completed;
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public Task(String title, String description, String dueDate) {
         this.title = title;
         this.description = description;
-        this.dueDate = LocalDate.parse(dueDate);
+        this.setDueDate(dueDate); // Use the setter to ensure date format
         this.completed = false;
     }
 
@@ -25,7 +27,7 @@ public class Task implements TaskInterface {
 
     @Override
     public String getDueDate() {
-        return dueDate.toString();
+        return dueDate.format(DATE_FORMAT); // Format the date as "YYYY-MM-DD"
     }
 
     @Override
@@ -45,7 +47,7 @@ public class Task implements TaskInterface {
 
     @Override
     public void setDueDate(String dueDate) {
-        this.dueDate = LocalDate.parse(dueDate);
+        this.dueDate = LocalDate.parse(dueDate); // Ensure the date is parsed correctly
     }
 
     @Override
