@@ -1,2 +1,5 @@
-package PACKAGE_NAME;public interface TaskSorter {
+import java.util.List;
+
+public interface TaskSorter {
+    void sort(List<Task> tasks);
 }
